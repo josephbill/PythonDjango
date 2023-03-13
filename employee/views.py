@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from employee.forms import EmployeeForm
 from employee.models import Employee
+from django.http import HttpResponse
+from django_daraja.mpesa.core import MpesaClient
+
 
 # Create your templates here.
 # .save() is the ORM equivalent of the SQL insert to statement.
@@ -28,6 +31,10 @@ def show(request):
 def edit(request, id):
     employee = Employee.objects.get(id=id)
     return render(request,'edit.html', {'employee':employee})
+
+def checkout(request, id):
+    employee = Employee.objects.get(id=id)
+    return render(request,'checkout.html', {'employee':employee})
 def update(request, id):
     employee = Employee.objects.get(id=id)
     form = EmployeeForm(request.POST, instance = employee)
@@ -35,6 +42,30 @@ def update(request, id):
         form.save()
         return redirect("/show")
     return render(request, 'edit.html', {'employee': employee})
+
+def checkoutpay(request):
+    if request.method == "POST":
+        # capture input
+        amount = request.POST.get('amount')
+        phoneNumber = request.POST.get('id_employee_contact')
+        # Check if phoneNumber and amount exist and have valid values
+        if not phoneNumber or not phoneNumber.isdigit():
+            return HttpResponse('Invalid phone number')
+        if not amount or not amount.isdigit():
+            return HttpResponse('Invalid amount')
+        # Do something with the amount, like create a payment object or update the employee salary
+        cl = MpesaClient()
+        phone_number = int(phoneNumber)
+        amount = int(amount)
+        account_reference = 'JOSEPH ENTERPRISES'
+        transaction_desc = 'paying shoes'
+        callback_url = 'https://api.darajambili.com/express-payment'
+        response = cl.stk_push(str(phone_number), amount, account_reference, transaction_desc, callback_url)
+        return HttpResponse(response)
+    else:
+        form = EmployeeForm()
+    return render(request, 'checkout.html', {'form': form})
+
 
 # .delete() is the ORM equivalent of the statement SQL : " DELETE FROM tablename WHERE id = ? "
 def destroy(request, id):

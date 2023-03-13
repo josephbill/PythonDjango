@@ -13,14 +13,17 @@ Design Pattern : MODEL : data that app uses  VIEW : the functions working on the
 6. Responses : Once a view function is executed , it returns a response object , -> this objects come in various formats -> JSON. HTML . XML
 7. Administration : Django has a fully created administration interface based of the models of the projects
 
+each event is attached with a verb / keyword -> route
+btn a is pressed -> expects a route to be defined for that event -> /button
+the route activated goes to a view function which defines the logic to be effected by that event
 
 HOW TO INSTALL DJANGO AND GET A SET UP / RUN A PROJECT
 1. Check if python is installed : python --version
 2. Install Python Django : pip install django
-3. Create the project structure : django-admin startproject cruddjangoexample
+3. Create the project structure : django-admin startproject cruddjangoexample : cruddjangoexample folder : manage.py
 4. Expain the key files :
     1. Manage.py : file that is responsible for running the django project
-    2. Settings.py : configurations inclusion : -> connection to a database , connection to other extra packages(pip install ...), connection to the models.
+    2. Settings.py : configurations inclusion : -> connection to a database , connection to other extra packages(pip install ...), connection to the models , modules
     3. urls.py : This is the file used for url routing. -> indicate our routes
 5. To run a django app we use the command: python manage.py runserver
 6. We create an app module : python manage.py startapp modulename(employee)
