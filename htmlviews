@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from employee.forms import EmployeeForm
 from employee.models import Employee
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django_daraja.mpesa.core import MpesaClient
 
 
@@ -13,80 +13,37 @@ def emp(request):
         form = EmployeeForm(request.POST)
         if form.is_valid():
             try:
-                employee = form.save()
-                return JsonResponse({
-                    'success': True,
-                    'employee': {
-                        'id': employee.id,
-                        'name': employee.employee_name,
-                        'email': employee.employee_email,
-                        'contact': employee.employee_contact,
-                    }
-                })
+                form.save()
+                return redirect('/show')
             except:
-                return JsonResponse({'success': False})
+                pass
     else:
         form = EmployeeForm()
     return render(request,'index.html',{'form':form})
 
 # .all() is the ORM equivalent of the SQL statement "SELECT * FROM tablename"
 def show(request):
-    employees = Employee.objects.all().values()  #return a dict
-    # we need to loop the employees dict
-    employee_list = []
-    for employee in employees:
-        employee_dict = {
-            'id': employee['id'],
-            'name': employee['employee_name'],
-            'email': employee['employee_email'],
-            'contact': employee['employee_contact'],
-        }
-        employee_list.append(employee_dict)
-    return JsonResponse({
-        'success': True,
-        'employees': employee_list
-    })
+    employees = Employee.objects.all()
+    return render(request,"show.html",{'employees':employees})
 
 
 # .get is the ORM equivalent of the SQL statement "SELECT * FROM tablename WHERE id = ? "
 # method update carries the update process for a single record
 def edit(request, id):
     employee = Employee.objects.get(id=id)
-    return JsonResponse({
-        'success': True,
-        'employee': {
-            'id': employee.id,
-            'name': employee.employee_name,
-            'email': employee.employee_email,
-            'contact': employee.employee_contact,
-        }
-    })
+    return render(request,'edit.html', {'employee':employee})
+
 def checkout(request, id):
     employee = Employee.objects.get(id=id)
-    return JsonResponse({
-        'success': True,
-        'employee': {
-            'id': employee.id,
-            'name': employee.employee_name,
-            'email': employee.employee_email,
-            'contact': employee.employee_contact,
-        }
-    })
+    return render(request,'checkout.html', {'employee':employee})
 def update(request, id):
     employee = Employee.objects.get(id=id)
     form = EmployeeForm(request.POST, instance = employee)
     if form.is_valid():
-        employee = form.save()
-        return JsonResponse({
-            'success': True,
-            'employee': {
-                'id': employee.id,
-                'name': employee.name,
-                'email': employee.email,
-                'contact': employee.contact
-            }
-        })
-    return JsonResponse({'success': False})
+        form.save()
+        return redirect("/show")
+    return render(request, 'edit.html', {'employee': employee})
+
 def checkoutpay(request):
     if request.method == "POST":
         # capture input
@@ -115,9 +72,7 @@ def checkoutpay(request):
 def destroy(request, id):
     employee = Employee.objects.get(id=id)
     employee.delete()
-    return JsonResponse({'success': True, 'message': 'data has been deleted.'})
-
-
+    return redirect("/show")
 
 
 
